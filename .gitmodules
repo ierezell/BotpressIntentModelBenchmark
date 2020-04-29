@@ -1,0 +1,9 @@
+[submodule "custom-modules/node-fasttext"]
+	path = custom-modules/node-fasttext
+	url = https://github.com/botpress/node-fasttext.git
+[submodule "custom-modules/node-svm2"]
+	path = custom-modules/node-svm2
+	url = https://github.com/botpress/node-svm2.git
+[submodule "custom-modules/node-svm"]
+	path = custom-modules/node-svm
+	url = https://github.com/botpress/node-svm.git

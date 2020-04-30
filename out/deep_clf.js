@@ -5,8 +5,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const tf = require("@tensorflow/tfjs-node");
 const Promise = require('bluebird');
 class Deep_clf {
-    constructor(ft, nb_intent) {
-        this.embedder = ft;
+    constructor(emb, nb_intent) {
+        this.embedder = emb;
         this.clf = tf.sequential();
         this.clf.add(tf.layers.inputLayer({ inputShape: [300] }));
         this.clf.add(tf.layers.dense({ units: 150, useBias: true }));
@@ -27,7 +27,7 @@ class Deep_clf {
         const start_deep = Date.now();
         await this.clf.fit(tf.tensor2d(X), tf.oneHot(tf.tensor1d(y, 'int32'), 150), {
             batchSize: 512,
-            epochs: 30,
+            epochs: 200,
             // validationSplit: 0.2,
             verbose: 0,
             shuffle: true

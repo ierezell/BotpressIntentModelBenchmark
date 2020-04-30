@@ -15,7 +15,7 @@ export function generate_multi_intent(list_utt_int: DatasRaw): DatasRaw {
     const word_types: Array<string> = Object.keys(words);
     const list_utt_multi_int: DatasRaw = [];
 
-    for (let index = 0; index < 100000; index++) {
+    for (let index = 0; index < 100; index++) {
         const [sentence_1, intent_1]: [string, Intent] = list_utt_int[Math.floor(Math.random() * list_utt_int.length)];
         const base_intent = [...intent_1];
 
@@ -51,9 +51,8 @@ export function generate_multi_intent(list_utt_int: DatasRaw): DatasRaw {
         }
     }
 
-    console.log(Chalk.red(list_utt_multi_int.length), "Couple utterance / multi intent");
-    console.log("ex : ", list_utt_multi_int[Math.floor(Math.random() * list_utt_multi_int.length)]);
-
+    console.log(Chalk.red(list_utt_multi_int.length), "Generated couples utterance / multi-intent");
+    console.log("ex : ", list_utt_multi_int[Math.floor(Math.random() * list_utt_multi_int.length)], "\n");
 
     return list_utt_multi_int;
 }

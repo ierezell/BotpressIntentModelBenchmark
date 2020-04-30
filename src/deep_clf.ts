@@ -8,8 +8,8 @@ const Promise = require('bluebird');
 export class Deep_clf {
     public clf: any;
     private embedder: any;
-    constructor(ft: any, nb_intent: number) {
-        this.embedder = ft;
+    constructor(emb: any, nb_intent: number) {
+        this.embedder = emb;
         this.clf = tf.sequential();
 
         this.clf.add(tf.layers.inputLayer({ inputShape: [300] }));
@@ -32,7 +32,7 @@ export class Deep_clf {
         const start_deep = Date.now();
         await this.clf.fit(tf.tensor2d(X), tf.oneHot(tf.tensor1d(y, 'int32'), 150), {
             batchSize: 512,
-            epochs: 30,
+            epochs: 200,
             // validationSplit: 0.2,
             verbose: 0,
             shuffle: true

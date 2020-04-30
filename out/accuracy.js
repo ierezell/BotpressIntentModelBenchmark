@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const Promise = require('bluebird');
-const process = require('process');
+const Chalk = require('chalk');
 async function compute_acc(datas, model) {
     const X = datas.map(sub_array => sub_array[0]);
     const y = datas.map(sub_array => sub_array[1][0]);
@@ -10,18 +10,13 @@ async function compute_acc(datas, model) {
     res.forEach(([pred,], index) => { if (pred === y[index]) {
         score += 1;
     } });
-    console.log(`Score : ${(score / y.length) * 100}%  <= (${score}/${y.length})`);
+    console.log(`\tScore : ${(score / y.length) * 100}%  <= (${score}/${y.length})`);
 }
 exports.compute_acc = compute_acc;
 async function compute_acc_multi(datas, model, number2intent) {
-    console.log(number2intent);
-    console.log();
-    datas.forEach(elt => { console.log(elt[0]); elt[1].forEach(e => console.log(e)); });
-    datas.forEach(elt => { console.log(elt[0]); elt[1].forEach(e => console.log(number2intent[e])); });
-    console.log();
     const X = datas.map(sub_array => sub_array[0]);
     const y = datas.map(sub_array => sub_array[1]);
-    const res = await Promise.map(X, (x) => predict_multi(model, x, number2intent, true), { concurrency: 10000 });
+    const res = await Promise.map(X, (x) => predict_multi(model, x, number2intent, false), { concurrency: 10000 });
     let score = 0;
     let score_loose = 0;
     res.forEach((pred, index) => {
@@ -32,14 +27,14 @@ async function compute_acc_multi(datas, model, number2intent) {
             score_loose += 1;
         }
     });
-    console.log(`Score : ${(score / y.length) * 100}%  <= (${score}/${y.length})`);
-    console.log(`Score : ${(score_loose / y.length) * 100}%  <= (${score_loose}/${y.length})`);
+    console.log(`\tScore multi : ${(score / y.length) * 100}%  <= (${score}/${y.length})`);
+    console.log(`\tScore multi loose: ${(score_loose / y.length) * 100}%  <= (${score_loose}/${y.length})`);
 }
 exports.compute_acc_multi = compute_acc_multi;
 async function compute_acc_greedy(datas, model) {
     const X = datas.map(sub_array => sub_array[0]);
     const y = datas.map(sub_array => sub_array[1]);
-    const res = await Promise.map(X, (x) => predict_greedy(model, x, true), { concurrency: 10000 });
+    const res = await Promise.map(X, (x) => predict_greedy(model, x, false), { concurrency: 1000 });
     let score = 0;
     let score_loose = 0;
     res.forEach((pred, index) => {
@@ -50,8 +45,8 @@ async function compute_acc_greedy(datas, model) {
             score_loose += 1;
         }
     });
-    console.log(`Score : ${(score / y.length) * 100}%  <= (${score}/${y.length})`);
-    console.log(`Score : ${(score_loose / y.length) * 100}%  <= (${score_loose}/${y.length})`);
+    console.log(`\tScore greedy : ${(score / y.length) * 100}%  <= (${score}/${y.length})`);
+    console.log(`\tScore greedy loose : ${(score_loose / y.length) * 100}%  <= (${score_loose}/${y.length})`);
 }
 exports.compute_acc_greedy = compute_acc_greedy;
 async function predict_multi(model, phrase, number2intent, verbose) {
@@ -120,8 +115,6 @@ async function predict_multi(model, phrase, number2intent, verbose) {
     if (!intentions.length) {
         intentions.push(intent_all);
     }
-    const log_intent = intentions.map(elt => number2intent[elt]);
-    console.log(log_intent);
     return intentions;
 }
 async function predict_greedy(model, phrase, verbose) {

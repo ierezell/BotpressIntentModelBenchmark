@@ -3,8 +3,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var svm = require('../custom-modules/node-svm2');
 const Promise = require('bluebird');
 class Svm_clf {
-    constructor(ft) {
-        this.embedder = ft;
+    constructor(emb) {
+        this.embedder = emb;
         this.clf = new svm.NSVM();
         this.params = {
             svm_type: 0,
@@ -16,8 +16,8 @@ class Svm_clf {
             eps: 0.1,
             C: 1.0,
             nr_weight: 0,
-            weight_label: Array(151).fill(0),
-            weight: Array(151).fill(0.0),
+            weight_label: Array(5).fill(0),
+            weight: Array(5).fill(0.0),
             nu: 0.5,
             p: 0.0,
             shrinking: 1,
@@ -28,6 +28,8 @@ class Svm_clf {
     async train(X, y) {
         console.log("Training SVM");
         const start_svm = Date.now();
+        // console.log(X)
+        // console.log(y)
         this.clf.train(this.params, X, y);
         const end_svm = Date.now();
         console.log('SVM trained in : ', (end_svm - start_svm) / 1000, "s");

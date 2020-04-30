@@ -1,8 +1,7 @@
 
 import { DatasNum, ProbDict, Number2Intent } from "./types";
-import { data } from "@tensorflow/tfjs-node";
 const Promise = require('bluebird');
-const process = require('process');
+const Chalk = require('chalk');
 
 
 export async function compute_acc(datas: DatasNum, model: any) {
@@ -11,28 +10,24 @@ export async function compute_acc(datas: DatasNum, model: any) {
     const res: [number, number][] = await Promise.map(X, (x: number[]) => model.predict(x), { concurrency: 10000 })
     let score: number = 0;
     res.forEach(([pred,], index) => { if (pred === y[index]) { score += 1 } })
-    console.log(`Score : ${(score / y.length) * 100}%  <= (${score}/${y.length})`);
+    console.log(`\tScore : ${(score / y.length) * 100}%  <= (${score}/${y.length})`);
 }
 
 
 export async function compute_acc_multi(datas: DatasNum, model: any, number2intent: Number2Intent) {
-    console.log(number2intent)
-    console.log()
-    datas.forEach(elt => { console.log(elt[0]); elt[1].forEach(e => console.log(e)) })
-    datas.forEach(elt => { console.log(elt[0]); elt[1].forEach(e => console.log(number2intent[e])) })
-    console.log();
+
     const X: string[] = datas.map(sub_array => sub_array[0]);
     const y: number[][] = datas.map(sub_array => sub_array[1]);
 
-    const res: number[][] = await Promise.map(X, (x: string) => predict_multi(model, x, number2intent, true), { concurrency: 10000 })
+    const res: number[][] = await Promise.map(X, (x: string) => predict_multi(model, x, number2intent, false), { concurrency: 10000 })
     let score: number = 0;
     let score_loose: number = 0;
     res.forEach((pred, index) => {
         if (pred === y[index]) { score += 1 }
         if (pred.some(value => y[index].includes(value))) { score_loose += 1 }
     })
-    console.log(`Score : ${(score / y.length) * 100}%  <= (${score}/${y.length})`);
-    console.log(`Score : ${(score_loose / y.length) * 100}%  <= (${score_loose}/${y.length})`);
+    console.log(`\tScore multi : ${(score / y.length) * 100}%  <= (${score}/${y.length})`);
+    console.log(`\tScore multi loose: ${(score_loose / y.length) * 100}%  <= (${score_loose}/${y.length})`);
 
 }
 
@@ -41,16 +36,15 @@ export async function compute_acc_greedy(datas: DatasNum, model: any) {
     const X: string[] = datas.map(sub_array => sub_array[0]);
     const y: number[][] = datas.map(sub_array => sub_array[1]);
 
-    const res: number[][] = await Promise.map(X, (x: string) => predict_greedy(model, x, true), { concurrency: 10000 })
+    const res: number[][] = await Promise.map(X, (x: string) => predict_greedy(model, x, false), { concurrency: 1000 })
     let score: number = 0;
     let score_loose: number = 0;
     res.forEach((pred, index) => {
         if (pred === y[index]) { score += 1 }
         if (pred.some(value => y[index].includes(value))) { score_loose += 1 }
     })
-    console.log(`Score : ${(score / y.length) * 100}%  <= (${score}/${y.length})`);
-    console.log(`Score : ${(score_loose / y.length) * 100}%  <= (${score_loose}/${y.length})`);
-
+    console.log(`\tScore greedy : ${(score / y.length) * 100}%  <= (${score}/${y.length})`);
+    console.log(`\tScore greedy loose : ${(score_loose / y.length) * 100}%  <= (${score_loose}/${y.length})`);
 }
 
 async function predict_multi(model: any, phrase: string, number2intent: Number2Intent, verbose: boolean): Promise<number[]> {
@@ -106,8 +100,6 @@ async function predict_multi(model: any, phrase: string, number2intent: Number2I
     if (mean_droite[max_droite] > 0.5) { intentions.push(Number(max_droite)) }
     if (!intentions.length) { intentions.push(intent_all) }
 
-    const log_intent = intentions.map(elt => number2intent[elt])
-    console.log(log_intent)
     return intentions
 }
 

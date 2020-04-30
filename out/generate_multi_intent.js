@@ -13,7 +13,7 @@ const Chalk = require('chalk');
 function generate_multi_intent(list_utt_int) {
     const word_types = Object.keys(types_1.words);
     const list_utt_multi_int = [];
-    for (let index = 0; index < 100000; index++) {
+    for (let index = 0; index < 100; index++) {
         const [sentence_1, intent_1] = list_utt_int[Math.floor(Math.random() * list_utt_int.length)];
         const base_intent = [...intent_1];
         let other_intent;
@@ -46,8 +46,8 @@ function generate_multi_intent(list_utt_int) {
             list_utt_multi_int.push([phrase, base_intent.concat(other_intent)]);
         }
     }
-    console.log(Chalk.red(list_utt_multi_int.length), "Couple utterance / multi intent");
-    console.log("ex : ", list_utt_multi_int[Math.floor(Math.random() * list_utt_multi_int.length)]);
+    console.log(Chalk.red(list_utt_multi_int.length), "Generated couples utterance / multi-intent");
+    console.log("ex : ", list_utt_multi_int[Math.floor(Math.random() * list_utt_multi_int.length)], "\n");
     return list_utt_multi_int;
 }
 exports.generate_multi_intent = generate_multi_intent;

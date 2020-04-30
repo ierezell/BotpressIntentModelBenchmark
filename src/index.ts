@@ -7,6 +7,9 @@ const Chalk = require('chalk');
 
 
 let params: OptionsPoutine = {
+    nb_int: 10,
+    nb_utt: -1,
+    embed: "use",
     svm: true,
     deep: true,
     train: true,
@@ -22,7 +25,7 @@ let number2intent_multi: Number2Intent = {};
 let list_utt_num_int: DatasNum = [];
 
 const [list_utt_int, intent2number, number2intent]:
-    [DatasRaw, Intent2Number, Number2Intent] = load_data("./data", 5, 15);
+    [DatasRaw, Intent2Number, Number2Intent] = load_data("./data", params.nb_int, params.nb_utt);
 
 
 if (params.acc_multi) {

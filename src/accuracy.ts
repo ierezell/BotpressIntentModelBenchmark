@@ -2,7 +2,7 @@
 import { DatasNum, ProbDict, Number2Intent } from "./types";
 const Promise = require('bluebird');
 const Chalk = require('chalk');
-
+var _ = require('lodash');
 
 export async function compute_acc(datas: DatasNum, model: any) {
     const X: string[] = datas.map(sub_array => sub_array[0]);
@@ -22,9 +22,17 @@ export async function compute_acc_multi(datas: DatasNum, model: any, number2inte
     const res: number[][] = await Promise.map(X, (x: string) => predict_multi(model, x, number2intent, false), { concurrency: 10000 })
     let score: number = 0;
     let score_loose: number = 0;
+    // console.log("RES", res)
+    // console.log("Y", y)
     res.forEach((pred, index) => {
-        if (pred === y[index]) { score += 1 }
-        if (pred.some(value => y[index].includes(value))) { score_loose += 1 }
+        if (_.isEqual(pred, y[index])) {
+            // console.log(_.isEqual(pred, y[index]), pred, y[index]); 
+            score += 1
+        }
+        if (_.some(_.intersection(pred, y[index]))) {
+            //console.log(_.some(_.intersection(pred, y[index])), pred, y[index]); 
+            score_loose += 1
+        }
     })
     console.log(`\tScore multi : ${(score / y.length) * 100}%  <= (${score}/${y.length})`);
     console.log(`\tScore multi loose: ${(score_loose / y.length) * 100}%  <= (${score_loose}/${y.length})`);
@@ -32,16 +40,28 @@ export async function compute_acc_multi(datas: DatasNum, model: any, number2inte
 }
 
 
-export async function compute_acc_greedy(datas: DatasNum, model: any) {
+export async function compute_acc_greedy(datas: DatasNum, model: any, number2intent: Number2Intent) {
     const X: string[] = datas.map(sub_array => sub_array[0]);
     const y: number[][] = datas.map(sub_array => sub_array[1]);
 
-    const res: number[][] = await Promise.map(X, (x: string) => predict_greedy(model, x, false), { concurrency: 1000 })
+    const res: number[][] = await Promise.map(X, (x: string) => predict_greedy(model, x, number2intent, false), { concurrency: 1000 })
     let score: number = 0;
     let score_loose: number = 0;
+    // console.log("RES")
+    // res.forEach((pred) => console.log(pred.map(e => number2intent[e])))
+    // console.log("REAL")
+    // y.forEach((pred) => console.log(pred.map(e => number2intent[e])))
+    // console.log("RES", res)
+    // console.log("Y", y)
     res.forEach((pred, index) => {
-        if (pred === y[index]) { score += 1 }
-        if (pred.some(value => y[index].includes(value))) { score_loose += 1 }
+        if (_.isEqual(pred, y[index])) {
+            //console.log(_.isEqual(pred, y[index]), pred, y[index]); 
+            score += 1
+        }
+        if (_.some(_.intersection(pred, y[index]))) {
+            //console.log(_.some(_.intersection(pred, y[index])), pred, y[index]);
+            score_loose += 1
+        }
     })
     console.log(`\tScore greedy : ${(score / y.length) * 100}%  <= (${score}/${y.length})`);
     console.log(`\tScore greedy loose : ${(score_loose / y.length) * 100}%  <= (${score_loose}/${y.length})`);
@@ -104,24 +124,26 @@ async function predict_multi(model: any, phrase: string, number2intent: Number2I
 }
 
 
-async function predict_greedy(model: any, phrase: string, verbose: boolean): Promise<number[]> {
+async function predict_greedy(model: any, phrase: string, number2intent: Number2Intent, verbose: boolean): Promise<number[]> {
     if (verbose) { console.log("Phrase : ", phrase); }
     let maxi = 0;
     let ind_cut = 0
     const intents: number[] = [];
     const mots = phrase.split(" ");
     for (let i = 1; i <= (mots.length); i++) {
-        let cutted_mots: string[] = mots.slice(0, i);
+        let cutted_mots: string[] = mots.slice(ind_cut, i);
+        if (verbose) { console.log(cutted_mots) }
 
         let [intent, prob]: [number, number] = await model.predict(cutted_mots.join(" "));
+        if (verbose) { console.log(number2intent[intent], prob) }
 
-        if (prob > maxi && prob > 0.8) { maxi = prob; }
+        if (prob > maxi && prob > 0.3) { maxi = prob }
         if (prob < maxi) {
             ind_cut = i;
             maxi = 0;
             if (!intents.includes(intent)) { intents.push(intent) }
         }
-        if (i === mots.length && !intents.includes(intent) && prob > 0.8) { intents.push(intent) }
+        if (i === mots.length && !intents.includes(intent) && prob > 0.3) { intents.push(intent) }
     }
     return intents
 }

@@ -25,7 +25,8 @@ export function generate_multi_intent(list_utt_int: DatasRaw): DatasRaw {
             other_intent = [...intent_2];
         } while (base_intent === other_intent);
 
-        if (Math.random() > 0.5) {
+        if (false) {
+            // if (Math.random() > 0.5) {
             const word_type: WordType = word_types[Math.floor(Math.random() * word_types.length)] as WordType;
             const word: string = words[word_type][Math.floor(Math.random() * words[word_type].length)];
             const sep: string = Math.random() > 0.5 ? " " : ", ";

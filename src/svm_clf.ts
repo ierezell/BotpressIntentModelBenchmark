@@ -7,7 +7,7 @@ export class Svm_clf {
     public clf: any;
     private embedder: any;
     private params: any;
-    constructor(emb: any) {
+    constructor(emb: any, nb_int: number) {
         this.embedder = emb;
         this.clf = new svm.NSVM();
         this.params = {
@@ -20,8 +20,8 @@ export class Svm_clf {
             eps: 0.1,
             C: 1.0,
             nr_weight: 0,
-            weight_label: Array(5).fill(0),
-            weight: Array(5).fill(0.0),
+            weight_label: Array(nb_int).fill(0),
+            weight: Array(nb_int).fill(0.0),
             nu: 0.5,
             p: 0.0,
             shrinking: 1, // not default
@@ -31,14 +31,7 @@ export class Svm_clf {
 
     }
     async train(X: number[][], y: number[]): Promise<void> {
-        console.log("Training SVM")
-        const start_svm = Date.now();
-        // console.log(X)
-        // console.log(y)
         this.clf.train(this.params, X, y);
-        const end_svm = Date.now();
-        console.log('SVM trained in : ', (end_svm - start_svm) / 1000, "s");
-
     }
 
     async predict(sentence: string): Promise<[number, number]> {

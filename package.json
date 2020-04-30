@@ -10,10 +10,12 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@tensorflow-models/universal-sentence-encoder": "^1.2.2",
     "@tensorflow/tfjs-node": "^1.7.4",
     "@types/mathjs": "^6.0.5",
     "bluebird": "^3.7.2",
     "chalk": "^4.0.0",
+    "lodash": "^4.17.15",
     "mathjs": "^6.6.4"
   }
 }

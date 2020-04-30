@@ -21,7 +21,8 @@ function generate_multi_intent(list_utt_int) {
             var [sentence_2, intent_2] = list_utt_int[Math.floor(Math.random() * list_utt_int.length)];
             other_intent = [...intent_2];
         } while (base_intent === other_intent);
-        if (Math.random() > 0.5) {
+        if (false) {
+            // if (Math.random() > 0.5) {
             const word_type = word_types[Math.floor(Math.random() * word_types.length)];
             const word = types_1.words[word_type][Math.floor(Math.random() * types_1.words[word_type].length)];
             const sep = Math.random() > 0.5 ? " " : ", ";

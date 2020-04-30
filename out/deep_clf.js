@@ -5,45 +5,44 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const tf = require("@tensorflow/tfjs-node");
 const Promise = require('bluebird');
 class Deep_clf {
-    constructor(emb, nb_intent) {
-        this.embedder = emb;
-        this.clf = tf.sequential();
-        this.clf.add(tf.layers.inputLayer({ inputShape: [300] }));
-        this.clf.add(tf.layers.dense({ units: 150, useBias: true }));
-        this.clf.add(tf.layers.reLU());
-        this.clf.add(tf.layers.dropout({ rate: 0.2 }));
-        this.clf.add(tf.layers.batchNormalization());
-        this.clf.add(tf.layers.dense({ units: nb_intent, useBias: true }));
-        this.clf.add(tf.layers.softmax());
-        this.clf.compile({
+    constructor(_embedder, _nb_intent, _embed_size) {
+        this._embedder = _embedder;
+        this._nb_intent = _nb_intent;
+        this._embed_size = _embed_size;
+        this._clf = tf.sequential();
+        this._clf.add(tf.layers.inputLayer({ inputShape: [_embed_size] }));
+        this._clf.add(tf.layers.dense({ units: Math.floor((_embed_size + _nb_intent) / 2), useBias: true }));
+        this._clf.add(tf.layers.reLU());
+        this._clf.add(tf.layers.dropout({ rate: 0.2 }));
+        this._clf.add(tf.layers.batchNormalization());
+        this._clf.add(tf.layers.dense({ units: Math.floor((_embed_size + _nb_intent) / 2), useBias: true }));
+        this._clf.add(tf.layers.reLU());
+        this._clf.add(tf.layers.dropout({ rate: 0.2 }));
+        this._clf.add(tf.layers.batchNormalization());
+        this._clf.add(tf.layers.dense({ units: _nb_intent, useBias: true }));
+        this._clf.add(tf.layers.softmax());
+        this._clf.compile({
             optimizer: tf.train.adam(0.001),
             loss: tf.losses.softmaxCrossEntropy,
             metrics: ['accuracy']
         });
-        // console.log(this.clf.summary())
+        // console.log(this._clf.summary())
     }
     async train(X, y) {
-        console.log("Training Deep");
-        const start_deep = Date.now();
-        await this.clf.fit(tf.tensor2d(X), tf.oneHot(tf.tensor1d(y, 'int32'), 150), {
+        await this._clf.fit(tf.tensor2d(X), tf.oneHot(tf.tensor1d(y, 'int32'), this._nb_intent), {
             batchSize: 512,
-            epochs: 200,
-            // validationSplit: 0.2,
+            epochs: 500,
+            // validationSplit: 0.1,
             verbose: 0,
-            shuffle: true
-            // callbacks: {
-            //     onEpochEnd: (epoch: any, logs: any) => {
-            //         console.log(`epoch ${epoch}, loss ${logs.loss}, val_loss ${logs.val_loss}, acc ${logs.acc}, val_acc ${logs.val_acc}`)
-            //     }
-            // }
+            shuffle: true,
+            // callbacks: tf.callbacks.earlyStopping({ monitor: 'val_acc' })
+            callbacks: tf.callbacks.earlyStopping({ monitor: 'loss' })
         });
-        const end_deep = Date.now();
-        console.log('Deep trained in : ', (end_deep - start_deep) / 1000, "s");
     }
     async predict(sentence) {
-        const embed = await this.embedder.getSentenceEmbedding(sentence);
-        const tens = tf.tensor1d(embed).reshape([1, 300]);
-        const probs = this.clf.predict(tens).reshape([150]);
+        const embed = await this._embedder.getSentenceEmbedding(sentence);
+        const tens = tf.tensor1d(embed).reshape([1, this._embed_size]);
+        const probs = this._clf.predict(tens).reshape([this._nb_intent]);
         const pred = tf.argMax(probs);
         // pred.print()
         const proba = tf.max(probs);
@@ -52,10 +51,10 @@ class Deep_clf {
         return [pred.dataSync()[0], proba.dataSync()[0]];
     }
     save(path) {
-        this.clf.save(path);
+        this._clf.save(path);
     }
     load(path) {
-        this.clf.load(path);
+        this._clf.load(path);
     }
 }
 exports.Deep_clf = Deep_clf;

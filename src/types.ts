@@ -29,6 +29,9 @@ export interface Number2Intent {
 }
 
 export interface OptionsPoutine {
+    nb_int: number,
+    nb_utt: number,
+    embed: string,
     svm?: boolean,
     deep?: boolean,
     train?: boolean,

@@ -6,6 +6,9 @@ const types_1 = require("./types");
 const poutinerie_1 = require("./poutinerie");
 const Chalk = require('chalk');
 let params = {
+    nb_int: 10,
+    nb_utt: -1,
+    embed: "use",
     svm: true,
     deep: true,
     train: true,
@@ -18,7 +21,7 @@ let params = {
 let list_utt_multi_num_int = [];
 let number2intent_multi = {};
 let list_utt_num_int = [];
-const [list_utt_int, intent2number, number2intent] = load_data_1.load_data("./data", 5, 15);
+const [list_utt_int, intent2number, number2intent] = load_data_1.load_data("./data", params.nb_int, params.nb_utt);
 if (params.acc_multi) {
     const list_utt_multi_int = generate_multi_intent_1.generate_multi_intent(list_utt_int);
     const last_intent = Object.keys(number2intent).length;

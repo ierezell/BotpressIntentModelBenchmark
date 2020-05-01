@@ -10,10 +10,14 @@ const Chalk = require('chalk');
 async function poutine(datas, options, datas_multi, number2intent) {
     //@ts-ignore
     // datas_multi = datas_multi.slice(-1)
+    if (options.nb_int < 0) {
+        const plop = new Set(datas.map(sub_array => sub_array[1][0]));
+        options.nb_int = plop.size;
+    }
     datas.sort(() => Math.random() - 0.5);
     // datas = datas.slice(0, 10)
-    const train_datas = datas.slice(0, 0.8 * datas.length);
-    const test_datas = datas.slice(0.8 * datas.length);
+    const train_datas = datas.slice(0, 0.9 * datas.length);
+    const test_datas = datas.slice(0.9 * datas.length);
     // const train_datas = datas.slice(0, 1);
     // const test_datas = datas.slice(-1);
     console.log(`${train_datas.length} training data and ${test_datas.length} for test\n`);

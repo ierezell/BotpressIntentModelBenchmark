@@ -60,6 +60,7 @@ export function load_data(path: string, nb_intents: number = -1, nb_utt = -1): [
         }
     } else {
         list_utt_int = list_utt_int_raw;
+
     }
 
     const intent2number: Intent2Number = {};

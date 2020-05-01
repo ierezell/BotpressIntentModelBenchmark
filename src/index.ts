@@ -7,15 +7,17 @@ const Chalk = require('chalk');
 
 
 let params: OptionsPoutine = {
-    nb_int: 20,
-    nb_utt: 30,
+    nb_int: -1,
+    nb_utt: -1,
+    // embed: "use",
     embed: "bert",
+    // embed: "fasttext",
     svm: true,
     deep: true,
     train: true,
     acc: true,
-    acc_multi: true,
-    acc_greedy: true,
+    acc_multi: false,
+    acc_greedy: false,
     load: false,
     save: false
 }
@@ -25,7 +27,7 @@ let number2intent_multi: Number2Intent = {};
 let list_utt_num_int: DatasNum = [];
 
 const [list_utt_int, intent2number, number2intent]:
-    [DatasRaw, Intent2Number, Number2Intent] = load_data("./data", params.nb_int, params.nb_utt);
+    [DatasRaw, Intent2Number, Number2Intent] = load_data("./datas/covid_id/fr", params.nb_int, params.nb_utt);
 
 
 if (params.acc_multi) {

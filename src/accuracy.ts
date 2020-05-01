@@ -7,10 +7,15 @@ const Chalk = require('chalk');
 export async function compute_acc(datas: DatasNum, model: any) {
     const X: string[] = datas.map(sub_array => sub_array[0]);
     const y: number[] = datas.map(sub_array => sub_array[1][0]);
-    const res: [number, number][] = await Promise.map(X, (x: number[]) => model.predict(x), { concurrency: 10000 })
-    let score: number = 0;
-    res.forEach(([pred,], index) => { if (pred === y[index]) { score += 1 } })
-    console.log(`\tScore : ${(score / y.length) * 100}%  <= (${score}/${y.length})`);
+    const res: [number, number, number[][]][] = await Promise.map(X, (x: number[]) => model.predict(x), { concurrency: 10000 })
+    let score_f1: number = 0;
+    let score_f3: number = 0;
+    res.forEach(([pred,], index) => { if (pred === y[index]) { score_f1 += 1 } })
+    // res.forEach(([, , top_k], index) => { console.log(top_k.map(e => e[0]), index) })
+
+    res.forEach(([, , top_k], index) => { if (some(intersection(top_k.map(e => e[0]), [y[index]]))) { score_f3 += 1 } })
+    console.log(`\tScore F1 : ${(score_f1 / y.length) * 100}%  <= (${score_f1}/${y.length})`);
+    console.log(`\tScore F3 : ${(score_f3 / y.length) * 100}%  <= (${score_f3}/${y.length})`);
 }
 
 
@@ -76,8 +81,8 @@ async function predict_multi(model: any, phrase: string, number2intent: Number2I
         let gauche: string[] = mots.slice(0, (mots.length / 2) + i + 1);
         let droite: string[] = mots.slice((mots.length / 2) + i + 1);
 
-        let [intent_gauche, prob_gauche]: [number, number] = await model.predict(gauche.join(" "));
-        let [intent_droite, prob_droite]: [number, number] = await model.predict(droite.join(" "));
+        let [intent_gauche, prob_gauche, top_k]: [number, number, number[][]] = await model.predict(gauche.join(" "));
+        let [intent_droite, prob_droite, top_k]: [number, number, number[][]] = await model.predict(droite.join(" "));
 
         if (!probas_gauche[intent_gauche]) { probas_gauche[intent_gauche] = [] }
         if (!probas_droite[intent_droite]) { probas_droite[intent_droite] = [] }
@@ -90,7 +95,7 @@ async function predict_multi(model: any, phrase: string, number2intent: Number2I
             console.log("droite : ", droite, "\n", number2intent[intent_droite], prob_droite);
         }
     }
-    const [intent_all, prob_all]: [number, number] = await model.predict(phrase)
+    const [intent_all, prob_all, top_k]: [number, number, number[][]] = await model.predict(phrase)
 
     if (verbose) { console.log("All", prob_all, number2intent[intent_all]) }
 
@@ -134,7 +139,7 @@ async function predict_greedy(model: any, phrase: string, number2intent: Number2
         let cutted_mots: string[] = mots.slice(ind_cut, i);
         if (verbose) { console.log(cutted_mots) }
 
-        let [intent, prob]: [number, number] = await model.predict(cutted_mots.join(" "));
+        let [intent, prob, top_k]: [number, number, number[][]] = await model.predict(cutted_mots.join(" "));
         if (verbose) { console.log(number2intent[intent], prob) }
 
         if (prob > prob_max && prob > 0.8) { prob_max = prob }

@@ -5,7 +5,7 @@ var fastText = require('../custom-modules/node-fasttext');
 const Promise = require('bluebird');
 class Fasttext {
     constructor() {
-        this.ft = new fastText.Query("/home/pedro/git_clones/oos-eval/cc.en.300.bin");
+        this.ft = new fastText.Query("/home/pedro/git_clones/oos-eval/cc.fr.300.bin");
     }
     async getWordEmbedding(mot) {
         const res = await this.ft.getWordVector(mot);

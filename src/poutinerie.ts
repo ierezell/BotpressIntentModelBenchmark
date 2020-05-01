@@ -20,15 +20,13 @@ export async function poutine(datas: DatasNum, options: OptionsPoutine, datas_mu
     // const test_datas = datas.slice(-1);
     console.log(`${train_datas.length} training data and ${test_datas.length} for test\n`)
 
-    let embed: any;
-    if (options.embed === "fasttext") { embed = new Embedder("fasttext"); }
-    else if (options.embed === "use") { embed = new Embedder("use"); }
+    const embed = new Embedder(options.embed)
     await embed.ready();
 
     console.log(Chalk.cyan("Computing train embeddings\n"))
     const X: string[] = train_datas.map(sub_array => sub_array[0]);
     const y: number[] = train_datas.map(sub_array => sub_array[1][0]);
-    const X_embed: number[][] = await Promise.map(X, (x: string) => embed.getSentenceEmbedding(x), { concurrency: 10000 })
+    const X_embed: number[][] = await Promise.map(X, (x: string) => embed.getSentenceEmbedding(x), { concurrency: 10 })
 
     if (options.svm) { await poutine_model("svm", options, embed, X_embed, y, test_datas, datas_multi, number2intent) }
     if (options.deep) { await poutine_model("deep", options, embed, X_embed, y, test_datas, datas_multi, number2intent) }
@@ -40,6 +38,7 @@ async function poutine_model(name: string, options: OptionsPoutine, embed: any, 
     if (name === "deep") {
         if (options.embed === "use") { model = new Deep_clf(embed, options.nb_int, 512) }
         if (options.embed === "fasttext") { model = new Deep_clf(embed, options.nb_int, 300) }
+        if (options.embed === "bert") { model = new Deep_clf(embed, options.nb_int, 768) }
     }
     else if (name === "svm") { model = new Svm_clf(embed, options.nb_int); }
     else { throw "Model name need to be deep or svm"; }

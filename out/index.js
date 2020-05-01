@@ -6,9 +6,9 @@ const types_1 = require("./types");
 const poutinerie_1 = require("./poutinerie");
 const Chalk = require('chalk');
 let params = {
-    nb_int: 10,
-    nb_utt: -1,
-    embed: "use",
+    nb_int: 20,
+    nb_utt: 30,
+    embed: "bert",
     svm: true,
     deep: true,
     train: true,

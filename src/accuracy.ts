@@ -1,8 +1,8 @@
 
 import { DatasNum, ProbDict, Number2Intent } from "./types";
+import { isEqual, some, intersection } from 'lodash'
 const Promise = require('bluebird');
 const Chalk = require('chalk');
-var _ = require('lodash');
 
 export async function compute_acc(datas: DatasNum, model: any) {
     const X: string[] = datas.map(sub_array => sub_array[0]);
@@ -25,11 +25,11 @@ export async function compute_acc_multi(datas: DatasNum, model: any, number2inte
     // console.log("RES", res)
     // console.log("Y", y)
     res.forEach((pred, index) => {
-        if (_.isEqual(pred, y[index])) {
+        if (isEqual(pred, y[index])) {
             // console.log(_.isEqual(pred, y[index]), pred, y[index]); 
             score += 1
         }
-        if (_.some(_.intersection(pred, y[index]))) {
+        if (some(intersection(pred, y[index]))) {
             //console.log(_.some(_.intersection(pred, y[index])), pred, y[index]); 
             score_loose += 1
         }
@@ -54,11 +54,11 @@ export async function compute_acc_greedy(datas: DatasNum, model: any, number2int
     // console.log("RES", res)
     // console.log("Y", y)
     res.forEach((pred, index) => {
-        if (_.isEqual(pred, y[index])) {
+        if (isEqual(pred, y[index])) {
             //console.log(_.isEqual(pred, y[index]), pred, y[index]); 
             score += 1
         }
-        if (_.some(_.intersection(pred, y[index]))) {
+        if (some(intersection(pred, y[index]))) {
             //console.log(_.some(_.intersection(pred, y[index])), pred, y[index]);
             score_loose += 1
         }
@@ -126,7 +126,7 @@ async function predict_multi(model: any, phrase: string, number2intent: Number2I
 
 async function predict_greedy(model: any, phrase: string, number2intent: Number2Intent, verbose: boolean): Promise<number[]> {
     if (verbose) { console.log("Phrase : ", phrase); }
-    let maxi = 0;
+    let prob_max = 0;
     let ind_cut = 0
     const intents: number[] = [];
     const mots = phrase.split(" ");
@@ -137,13 +137,13 @@ async function predict_greedy(model: any, phrase: string, number2intent: Number2
         let [intent, prob]: [number, number] = await model.predict(cutted_mots.join(" "));
         if (verbose) { console.log(number2intent[intent], prob) }
 
-        if (prob > maxi && prob > 0.3) { maxi = prob }
-        if (prob < maxi) {
+        if (prob > prob_max && prob > 0.8) { prob_max = prob }
+        if (prob < prob_max) {
             ind_cut = i;
-            maxi = 0;
+            prob_max = 0;
             if (!intents.includes(intent)) { intents.push(intent) }
         }
-        if (i === mots.length && !intents.includes(intent) && prob > 0.3) { intents.push(intent) }
+        if (i === mots.length && !intents.includes(intent) && prob > 0.8) { intents.push(intent) }
     }
     return intents
 }

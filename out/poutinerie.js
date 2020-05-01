@@ -17,18 +17,12 @@ async function poutine(datas, options, datas_multi, number2intent) {
     // const train_datas = datas.slice(0, 1);
     // const test_datas = datas.slice(-1);
     console.log(`${train_datas.length} training data and ${test_datas.length} for test\n`);
-    let embed;
-    if (options.embed === "fasttext") {
-        embed = new embedders_1.Embedder("fasttext");
-    }
-    else if (options.embed === "use") {
-        embed = new embedders_1.Embedder("use");
-    }
+    const embed = new embedders_1.Embedder(options.embed);
     await embed.ready();
     console.log(Chalk.cyan("Computing train embeddings\n"));
     const X = train_datas.map(sub_array => sub_array[0]);
     const y = train_datas.map(sub_array => sub_array[1][0]);
-    const X_embed = await Promise.map(X, (x) => embed.getSentenceEmbedding(x), { concurrency: 10000 });
+    const X_embed = await Promise.map(X, (x) => embed.getSentenceEmbedding(x), { concurrency: 10 });
     if (options.svm) {
         await poutine_model("svm", options, embed, X_embed, y, test_datas, datas_multi, number2intent);
     }
@@ -45,6 +39,9 @@ async function poutine_model(name, options, embed, X_train, y_train, test, multi
         }
         if (options.embed === "fasttext") {
             model = new deep_clf_1.Deep_clf(embed, options.nb_int, 300);
+        }
+        if (options.embed === "bert") {
+            model = new deep_clf_1.Deep_clf(embed, options.nb_int, 768);
         }
     }
     else if (name === "svm") {

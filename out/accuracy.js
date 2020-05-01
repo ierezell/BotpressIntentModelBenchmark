@@ -1,8 +1,8 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+const lodash_1 = require("lodash");
 const Promise = require('bluebird');
 const Chalk = require('chalk');
-var _ = require('lodash');
 async function compute_acc(datas, model) {
     const X = datas.map(sub_array => sub_array[0]);
     const y = datas.map(sub_array => sub_array[1][0]);
@@ -23,11 +23,11 @@ async function compute_acc_multi(datas, model, number2intent) {
     // console.log("RES", res)
     // console.log("Y", y)
     res.forEach((pred, index) => {
-        if (_.isEqual(pred, y[index])) {
+        if (lodash_1.isEqual(pred, y[index])) {
             // console.log(_.isEqual(pred, y[index]), pred, y[index]); 
             score += 1;
         }
-        if (_.some(_.intersection(pred, y[index]))) {
+        if (lodash_1.some(lodash_1.intersection(pred, y[index]))) {
             //console.log(_.some(_.intersection(pred, y[index])), pred, y[index]); 
             score_loose += 1;
         }
@@ -49,11 +49,11 @@ async function compute_acc_greedy(datas, model, number2intent) {
     // console.log("RES", res)
     // console.log("Y", y)
     res.forEach((pred, index) => {
-        if (_.isEqual(pred, y[index])) {
+        if (lodash_1.isEqual(pred, y[index])) {
             //console.log(_.isEqual(pred, y[index]), pred, y[index]); 
             score += 1;
         }
-        if (_.some(_.intersection(pred, y[index]))) {
+        if (lodash_1.some(lodash_1.intersection(pred, y[index]))) {
             //console.log(_.some(_.intersection(pred, y[index])), pred, y[index]);
             score_loose += 1;
         }
@@ -134,7 +134,7 @@ async function predict_greedy(model, phrase, number2intent, verbose) {
     if (verbose) {
         console.log("Phrase : ", phrase);
     }
-    let maxi = 0;
+    let prob_max = 0;
     let ind_cut = 0;
     const intents = [];
     const mots = phrase.split(" ");
@@ -147,17 +147,17 @@ async function predict_greedy(model, phrase, number2intent, verbose) {
         if (verbose) {
             console.log(number2intent[intent], prob);
         }
-        if (prob > maxi && prob > 0.3) {
-            maxi = prob;
+        if (prob > prob_max && prob > 0.8) {
+            prob_max = prob;
         }
-        if (prob < maxi) {
+        if (prob < prob_max) {
             ind_cut = i;
-            maxi = 0;
+            prob_max = 0;
             if (!intents.includes(intent)) {
                 intents.push(intent);
             }
         }
-        if (i === mots.length && !intents.includes(intent) && prob > 0.3) {
+        if (i === mots.length && !intents.includes(intent) && prob > 0.8) {
             intents.push(intent);
         }
     }

@@ -7,9 +7,9 @@ const Chalk = require('chalk');
 
 
 let params: OptionsPoutine = {
-    nb_int: 10,
-    nb_utt: -1,
-    embed: "use",
+    nb_int: 20,
+    nb_utt: 30,
+    embed: "bert",
     svm: true,
     deep: true,
     train: true,

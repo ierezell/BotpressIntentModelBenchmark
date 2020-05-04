@@ -31,7 +31,7 @@ let number2intent_multi: Number2Intent = {};
 let list_utt_num_int: DatasNum = [];
 
 const [list_utt_int, intent2number, number2intent]:
-    [DatasRaw, Intent2Number, Number2Intent] = load_data("./datas/covid_id/en", params.nb_int, params.nb_utt);
+    [DatasRaw, Intent2Number, Number2Intent] = load_data("./datas/covid_id/fr", params.nb_int, params.nb_utt);
 
 
 if (params.acc_multi) {

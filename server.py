@@ -1,6 +1,7 @@
 from transformers import (BertConfig, BertModel, BertTokenizer,
                           BertTokenizerFast, DistilBertConfig, DistilBertModel,
-                          DistilBertTokenizerFast, FeatureExtractionPipeline)
+                          DistilBertTokenizerFast, FeatureExtractionPipeline,
+                          CamembertConfig, CamembertTokenizer, CamembertModel)
 import json
 import pdb
 
@@ -25,18 +26,36 @@ from flair.embeddings import (
     # XLNetEmbeddings,
     # StackedEmbeddings
 )
+
+CamembertConfig, CamembertTokenizer, CamembertModel
 # C.f https://github.com/flairNLP/flair/blob/master/resources/docs/TUTORIAL_4_ELMO_BERT_FLAIR_EMBEDDING.md
-device = torch.device(
-    "cuda") if torch.cuda.is_available() else torch.device("cpu")
+# device = torch.device(
+# "cuda") if torch.cuda.is_available() else torch.device("cpu")
+device = torch.device("cpu")
 print("Launching server || Bert will be on", device)
-bc = BertConfig(output_hidden_states=True)
-bert = BertModel(bc)
-bert = bert.from_pretrained("bert-base-uncased")
+
+# ####
+# EN #
+# ####
+
+# bc = BertConfig(output_hidden_states=True)
+# bert = BertModel(bc)
+# bert = bert.from_pretrained("bert-base-uncased")
 # bert = bert.from_pretrained("bert-base-multilingual-cased")
+# bert = bert.eval()
+# bert = bert.to(device)
+# bert_tok = BertTokenizer.from_pretrained("bert-base-multilingual-cased")
+
+# ####
+# FR #
+# ####
+
+cbc = CamembertConfig(output_hidden_states=True)
+bert = CamembertModel(cbc)
+bert.from_pretrained("camembert-base")
 bert = bert.eval()
 bert = bert.to(device)
-bert_tok = BertTokenizer.from_pretrained("bert-base-uncased")
-# bert_tok = BertTokenizer.from_pretrained("bert-base-multilingual-cased")
+bert_tok = CamembertTokenizer.from_pretrained("camembert-base")
 
 app = Flask(__name__)
 
@@ -73,22 +92,31 @@ def vectorize():
 @app.route('/vectorize_utterances',  methods=['POST'])
 def vectorize_utterances():
     utterances = request.json["utterances"]
-    with torch.no_grad():
-        if type(utterances) == str:
-            utterances = [utterances]
-        input_tensor = bert_tok.batch_encode_plus(utterances,
-                                                  pad_to_max_length=True,
-                                                  return_tensors="pt")
-        outputs, hidden = bert(input_tensor["input_ids"].to(device),
-                               input_tensor["attention_mask"].to(device))
+    utterances = [u.replace("-", " ") for u in utterances]
+    try:
+        with torch.no_grad():
+            if type(utterances) == str:
+                utterances = [utterances]
+            input_tensor = bert_tok.batch_encode_plus(utterances,
+                                                      pad_to_max_length=True,
+                                                      return_tensors="pt")
+            # last_hidden, pooler, hidden = bert(input_tensor["input_ids"].to(device),
+            #                                    input_tensor["attention_mask"].to(device))
 
-        if adaptive_pool is not None:
-            outputs = adaptive_pool(outputs)
-        embedding = torch.sum(outputs, axis=1)
-        # embedding = adaptive_pool(hidden.unsqueeze(0)).squeeze()
-        # embedding = hidden
+            last_hidden, pool, hidden = bert(input_tensor["input_ids"].to(device),
+                                             input_tensor["attention_mask"].to(device))
+            # print(hidden[0].size())
+            # print(hidden[1].size())
+            if adaptive_pool is not None:
+                last_hidden = adaptive_pool(last_hidden)
+            embedding = torch.sum(last_hidden, axis=1)
+            # embedding = torch.sum(hidden[0], axis=1)
+            # embedding = adaptive_pool(hidden.unsqueeze(0)).squeeze()
+            # embedding = hidden
 
-        embeddings = embedding.detach().cpu().data.numpy().tolist()
+            embeddings = embedding.detach().cpu().data.numpy().tolist()
+    except BaseException:
+        print(utterances)
     return jsonify({"vectors": embeddings})
 
 
@@ -108,7 +136,8 @@ def info():
 
 
 if (__name__ == '__main__'):
-    app.run(debug=True)
+    # app.run(debug=True)
+    app.run(debug=False)
 
 
 # @app.route('/vectorize',  methods=['POST'])

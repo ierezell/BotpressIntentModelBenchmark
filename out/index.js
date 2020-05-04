@@ -5,6 +5,11 @@ const generate_multi_intent_1 = require("./generate_multi_intent");
 const types_1 = require("./types");
 const poutinerie_1 = require("./poutinerie");
 const Chalk = require('chalk');
+// ///////////////////////////////////////////////////////////////////////////////
+// Il faut lancer python craft_dataset_covid.py avant de lancer ce script ! //////
+//                   Les options sont donnees dans le fichier python        //////
+//     Ensuite precisez le repertoire covid_ctx ou covid_id ainsi que fr ou en////
+// ///////////////////////////////////////////////////////////////////////////////
 let params = {
     nb_int: -1,
     nb_utt: -1,
@@ -23,7 +28,7 @@ let params = {
 let list_utt_multi_num_int = [];
 let number2intent_multi = {};
 let list_utt_num_int = [];
-const [list_utt_int, intent2number, number2intent] = load_data_1.load_data("./datas/covid_id/fr", params.nb_int, params.nb_utt);
+const [list_utt_int, intent2number, number2intent] = load_data_1.load_data("./datas/covid_id/en", params.nb_int, params.nb_utt);
 if (params.acc_multi) {
     const list_utt_multi_int = generate_multi_intent_1.generate_multi_intent(list_utt_int);
     const last_intent = Object.keys(number2intent).length;

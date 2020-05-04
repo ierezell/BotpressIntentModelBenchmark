@@ -57,6 +57,9 @@ class Svm_clf {
         const max = Math.max(...probs);
         return [pred, max, top_k];
     }
+    async ready() {
+        const pong = await this.embedder.getSentenceEmbedding("ping");
+    }
     save(path) {
         this.clf.save(path);
     }

@@ -14,13 +14,20 @@ class Deep_clf {
         this._clf.add(tf.layers.dense({ units: _embed_size, useBias: true }));
         // this._clf.add(tf.layers.reLU());
         this._clf.add(tf.layers.leakyReLU());
-        this._clf.add(tf.layers.dropout({ rate: 0.2 }));
-        this._clf.add(tf.layers.layerNormalization());
-        this._clf.add(tf.layers.dense({ units: Math.floor((_embed_size + _nb_intent) / 2), useBias: true }));
-        // this._clf.add(tf.layers.reLU());
-        this._clf.add(tf.layers.leakyReLU());
-        this._clf.add(tf.layers.dropout({ rate: 0.2 }));
-        this._clf.add(tf.layers.layerNormalization());
+        this._clf.add(tf.layers.dropout({ rate: 0.4 }));
+        // this._clf.add(tf.layers.layerNormalization());
+        this._clf.add(tf.layers.batchNormalization());
+        // this._clf.add(tf.layers.dense({ units: _embed_size, useBias: true }));
+        // // this._clf.add(tf.layers.reLU());
+        // this._clf.add(tf.layers.leakyReLU());
+        // this._clf.add(tf.layers.dropout({ rate: 0.4 }));
+        // // this._clf.add(tf.layers.layerNormalization());
+        // this._clf.add(tf.layers.batchNormalization());
+        // this._clf.add(tf.layers.dense({ units: Math.floor((_embed_size + _nb_intent) / 2), useBias: true }));
+        // this._clf.add(tf.layers.leakyReLU());
+        // // this._clf.add(tf.layers.reLU());
+        // this._clf.add(tf.layers.dropout({ rate: 0.3 }));
+        // // this._clf.add(tf.layers.layerNormalization());
         // this._clf.add(tf.layers.batchNormalization());
         this._clf.add(tf.layers.dense({ units: _nb_intent, useBias: true }));
         this._clf.add(tf.layers.softmax());
@@ -34,11 +41,10 @@ class Deep_clf {
     async train(X, y) {
         await this._clf.fit(tf.tensor2d(X), tf.oneHot(tf.tensor1d(y, 'int32'), this._nb_intent), {
             batchSize: 512,
-            epochs: 500,
+            epochs: 200,
             validationSplit: 0.1,
-            verbose: 1,
+            verbose: 0,
             shuffle: true,
-            callbacks: tf.callbacks.earlyStopping({ monitor: 'val_acc', patience: 20, minDelta: 0.001 })
         });
     }
     async predict(sentence) {

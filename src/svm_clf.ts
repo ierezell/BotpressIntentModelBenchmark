@@ -56,6 +56,9 @@ export class Svm_clf {
         return [pred, max, top_k]
     }
 
+    async ready() {
+        const pong = await this.embedder.getSentenceEmbedding("ping");
+    }
     save(path: string) {
         this.clf.save(path)
     }

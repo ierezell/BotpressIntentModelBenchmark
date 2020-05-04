@@ -81,8 +81,8 @@ async function predict_multi(model: any, phrase: string, number2intent: Number2I
         let gauche: string[] = mots.slice(0, (mots.length / 2) + i + 1);
         let droite: string[] = mots.slice((mots.length / 2) + i + 1);
 
-        let [intent_gauche, prob_gauche, top_k]: [number, number, number[][]] = await model.predict(gauche.join(" "));
-        let [intent_droite, prob_droite, top_k]: [number, number, number[][]] = await model.predict(droite.join(" "));
+        let [intent_gauche, prob_gauche,]: [number, number, number[][]] = await model.predict(gauche.join(" "));
+        let [intent_droite, prob_droite,]: [number, number, number[][]] = await model.predict(droite.join(" "));
 
         if (!probas_gauche[intent_gauche]) { probas_gauche[intent_gauche] = [] }
         if (!probas_droite[intent_droite]) { probas_droite[intent_droite] = [] }
@@ -95,7 +95,7 @@ async function predict_multi(model: any, phrase: string, number2intent: Number2I
             console.log("droite : ", droite, "\n", number2intent[intent_droite], prob_droite);
         }
     }
-    const [intent_all, prob_all, top_k]: [number, number, number[][]] = await model.predict(phrase)
+    const [intent_all, prob_all,]: [number, number, number[][]] = await model.predict(phrase)
 
     if (verbose) { console.log("All", prob_all, number2intent[intent_all]) }
 

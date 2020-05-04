@@ -5,7 +5,11 @@ import { Intent, Intent2Number, Number2Intent, DatasRaw, DatasNum, OptionsPoutin
 import { poutine } from "./poutinerie"
 const Chalk = require('chalk');
 
-
+// ///////////////////////////////////////////////////////////////////////////////
+// Il faut lancer python craft_dataset_covid.py avant de lancer ce script ! //////
+//                   Les options sont donnees dans le fichier python        //////
+//     Ensuite precisez le repertoire covid_ctx ou covid_id ainsi que fr ou en////
+// ///////////////////////////////////////////////////////////////////////////////
 let params: OptionsPoutine = {
     nb_int: -1,
     nb_utt: -1,
@@ -27,7 +31,7 @@ let number2intent_multi: Number2Intent = {};
 let list_utt_num_int: DatasNum = [];
 
 const [list_utt_int, intent2number, number2intent]:
-    [DatasRaw, Intent2Number, Number2Intent] = load_data("./datas/covid_id/fr", params.nb_int, params.nb_utt);
+    [DatasRaw, Intent2Number, Number2Intent] = load_data("./datas/covid_id/en", params.nb_int, params.nb_utt);
 
 
 if (params.acc_multi) {
